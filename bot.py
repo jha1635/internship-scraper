@@ -100,6 +100,7 @@ def scrape_aicte_govt():
 def main():
     print("Scraping started...")
     all_internships = scrape_internshala() + scrape_aicte_govt()
+    send_telegram_message("🤖 Bot Test: system kaam kar raha hai!")
     
     if not all_internships:
         print("No new active internships found today.")
