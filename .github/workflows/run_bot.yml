@@ -2,18 +2,18 @@ name: Daily Internship Scraper
 
 on:
   schedule:
-    - cron: '30 3 * * *' # UTC time (India ke hisab se roz subah 9:00 AM)
-  workflow_dispatch: # Isse tum manually bhi jab chahe button daba kar run kar sakte ho
+    - cron: '30 3 * * *' # Roz subah India ke time ke hisab se 9:00 AM par chalega
+  workflow_dispatch: # Isse tum jab chahe manually bhi run kar sakte ho
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4 # Node warning theek karne ke liye v4 kiya
 
     - name: Set up Python
-      uses: actions/checkout@v3
+      uses: actions/setup-python@v5 # Python setup ko sahi kiya
       with:
         python-version: '3.10'
 
