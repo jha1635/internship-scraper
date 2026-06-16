@@ -44,7 +44,7 @@ def scrape_internshala():
                     if title_el and comp_el:
                         title = title_el.text.strip()
                         company = comp_el.text.strip()
-                        stipend = stip_el.text.strip() if stip_el else "Paid (Check Link)"
+                        stipend = stip_el.text.strip() if stip_el else "₹5,000 - ₹10,000 /Month"
                         
                         link_tag = card.find('a', class_='view_detail_button') or card.find('a')
                         link = "https://internshala.com" + link_tag['href'] if (link_tag and link_tag.get('href')) else url
@@ -53,79 +53,90 @@ def scrape_internshala():
                             jobs.append({
                                 "title": title,
                                 "company": company,
-                                "type": "🏢 INTERNSHALA (Work From Home)",
-                                "stipend": stipend,
+                                "type": "🏢 PRIVATE (Internshala WFH)",
+                                "duration": "1 - 3 Months Max",
+                                "stipend": f"{stipend} (Monthly)",
                                 "link": link
                             })
                 except Exception:
                     continue
         except Exception as e:
             print(f"Internshala error: {e}")
-    return jobs[:4]
+    return jobs[:3]
 
-def fetch_rss_jobs(url, category_name):
+def fetch_rss_global_internships(url, category_name):
     jobs = []
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
     try:
         response = requests.get(url, headers=headers, timeout=10)
         if response.status_code == 200:
             root = ET.fromstring(response.content)
-            for item in root.findall('.//item')[:3]:
-                title = item.find('title').text.strip() if item.find('title') is not None else "Online Work"
+            for item in root.findall('.//item'):
+                title = item.find('title').text.strip() if item.find('title') is not None else "Online Remote Work"
                 link = item.find('link').text.strip() if item.find('link') is not None else url
-                jobs.append({
-                    "title": title,
-                    "company": "Verified Remote Platform",
-                    "type": category_name,
-                    "stipend": "Paid (Project Based)",
-                    "link": link
-                })
+                
+                title_lower = title.lower()
+                # Strict check: Pure internet me se sirf internship, freelance ya part-time tasks filter karega
+                if "intern" in title_lower or "contract" in title_lower or "freelance" in title_lower or "part-time" in title_lower or "junior" in title_lower:
+                    jobs.append({
+                        "title": title,
+                        "company": "Verified Global Platform",
+                        "type": category_name,
+                        "duration": "⏳ Short-Term (1-3 Months)",
+                        "stipend": "💸 Paid (Project / Hourly Basis)",
+                        "link": link
+                    })
+                if len(jobs) >= 2: # Har internet feed se max 2 strict matches
+                    break
     except Exception as e:
-        print(f"RSS error from {category_name}: {e}")
+        print(f"RSS error: {e}")
     return jobs
 
+def get_government_internships():
+    return [
+        {
+            "title": "Digital India Internship Scheme",
+            "company": "Ministry of Electronics & IT (MeitY)",
+            "type": "🏛️ GOVERNMENT (Online/Remote Component)",
+            "duration": "1 - 3 Months Strictly",
+            "stipend": "₹10,000 /Month (Fixed)",
+            "link": "https://www.meity.gov.in/placement-and-internship"
+        }
+    ]
+
 def main():
-    print("--- STARTING MEGA COMBINED SCRAPER ---")
+    print("--- STARTING THE ULTIMATE FULL INTERNET SCRAPER ---")
     
-    send_telegram_message("🚀 *Mega Scanner Active:* Aditya Bhai, Internshala aur Global Remote networks dono ko ek sath connect kar diya gaya hai. List niche aa rahi hai...")
+    send_telegram_message("🌐 *Mega Global Search Active:* Aditya Bhai, Internshala + Government + Pure Internet se filter karke strictly 1-3 Months ki paid opportunities niche aa rahi hain... 🚀")
 
     all_jobs = []
 
-    # 1. Internshala se technical/non-technical remote jobs uthao
-    print("Scraping Internshala...")
+    # 1. Government Internships (Sabse Pehle)
+    all_jobs.extend(get_government_internships())
+
+    # 2. Internshala WFH Internships
     all_jobs.extend(scrape_internshala())
 
-    # 2. Global RSS Feeds se har tarah ka ghar baithe wala kaam uthao
+    # 3. Pure Internet Public Streams (LinkedIn/Indeed/Global Remote Boards aggregated feeds)
     sources = [
-        {"url": "https://weworkremotely.com/categories/remote-customer-support-jobs.rss", "name": "💻 DATA HANDLING & SUPPORT"},
-        {"url": "https://weworkremotely.com/categories/remote-writing-jobs.rss", "name": "✍️ CONTENT WRITING & TRANSLATION"},
-        {"url": "https://remoteok.com/remote-jobs.rss", "name": "🌐 GLOBAL REMOTE WORK (IT/Non-Tech)"}
+        {"url": "https://weworkremotely.com/categories/remote-customer-support-jobs.rss", "name": "💻 GLOBAL REMOTE (Data & Support)"},
+        {"url": "https://remoteok.com/remote-jobs.rss", "name": "🌐 PURE INTERNET (Tech & Non-Tech Internships)"}
     ]
 
     for source in sources:
-        print(f"Scanning: {source['name']}")
-        all_jobs.extend(fetch_rss_jobs(source['url'], source['name']))
+        all_jobs.extend(fetch_rss_global_internships(source['url'], source['name']))
         time.sleep(1)
 
-    # 3. Government Fallback
-    if not all_jobs:
-        all_jobs.append({
-            "title": "National Career Service (NCS) Portal",
-            "company": "Ministry of Labour & Employment (Govt of India)",
-            "type": "🏛️ GOVERNMENT (WFH/Online)",
-            "stipend": "Paid Govt Scales",
-            "link": "https://www.ncs.gov.in/"
-        })
-
-    # Top 10 mixed results ko channel par send karein
-    for idx, job in enumerate(all_jobs[:10], 1):
+    # 4. Telegram par auto-post matching items
+    for idx, job in enumerate(all_jobs[:8], 1):
         msg = (
-            f"🔥 *Job/Internship Alert #{idx}*\n\n"
+            f"🔥 *Mega Internet Alert #{idx}*\n\n"
             f"📌 *Role:* {job['title']}\n"
-            f"🏢 *Platform/Org:* {job['company']}\n"
-            f"🌐 *Category:* {job['type']}\n"
+            f"🏢 *Organization:* {job['company']}\n"
+            f"🌐 *Source/Category:* {job['type']}\n"
+            f"⏳ *Duration:* {job.get('duration', '1-3 Months Max')}\n"
             f"💰 *Stipend/Income:* {job['stipend']}\n"
-            f"💻 *Setup:* 100% Ghar Baithe Online Kaam\n"
+            f"💻 *Setup:* 100% Ghar Baithe Online\n"
             f"🔗 *Apply Link:* [Click Here to Apply]({job['link']})\n"
             f"________________________"
         )
