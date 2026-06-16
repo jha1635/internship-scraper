@@ -3,17 +3,20 @@ name: Daily Internship Scraper
 on:
   schedule:
     - cron: '30 3 * * *' # Roz subah India ke time ke hisab se 9:00 AM par chalega
-  workflow_dispatch: # Isse tum jab chahe manually bhi run kar sakte ho
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true' # Warning ko poori tarah khatam karne ke liye
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository code
-      uses: actions/checkout@v4 # Node warning theek karne ke liye v4 kiya
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v5 # Python setup ko sahi kiya
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
