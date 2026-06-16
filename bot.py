@@ -107,7 +107,7 @@ def get_government_internships():
 def main():
     print("--- STARTING THE ULTIMATE FULL INTERNET SCRAPER ---")
     
-    send_telegram_message("🌐 *Mega Global Search Active:* Aditya Bhai, Internshala + Government + Pure Internet se filter karke strictly 1-3 Months ki paid opportunities niche aa rahi hain... 🚀")
+    send_telegram_message("🌐 *Mega Global Search Active:* Bhai, Internshala + Government + Pure Internet se filter karke strictly 1-3 Months ki paid opportunities niche aa rahi hain... 🚀")
 
     all_jobs = []
 
